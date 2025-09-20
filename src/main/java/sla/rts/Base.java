@@ -6,6 +6,7 @@ public abstract class Base {
     protected int x,y;
     protected int width,height;
 
+
     public abstract void desenhar();
     public abstract void atualizar();
 
