@@ -1,28 +1,25 @@
-package sla.rts;
+package sla.rts.tropas;
 
 import javafx.geometry.Rectangle2D;
 import javafx.scene.paint.Color;
 import sla.api.FX_CG_2D_API;
 import sla.api.FX_CG_2D_API.Estilo;
+import sla.rts.Base;
+import sla.rts.Reino;
 
-public class Aldeao extends Base{
+public class Soldado extends Base {
     FX_CG_2D_API api;
 
     private int vida;
-    private int capacidade;
+    private int dano;
     private Color cor;
     private int hspd, vpsd, spd = 3;
-
     private int x, y;
     private int width = 20, height = 20;
 
     private Reino reino;
 
-    public Aldeao(FX_CG_2D_API api) {
-        this.api = api;
-    }
-
-    public Aldeao(int x, int y, Reino reino, FX_CG_2D_API api,Color cor) {
+    public Soldado(int x, int y, Reino reino, FX_CG_2D_API api, Color cor) {
         this.x = x;
         this.y = y;
         this.reino = reino;
@@ -38,20 +35,18 @@ public class Aldeao extends Base{
         api.preenchimento(cor);
         api.retangulo(x, y, width, height, Estilo.PREENCHIDO);
 
-
         api.desempilhar();
-
     }
 
     @Override
     public void atualizar() {
-
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'atualizar'");
     }
 
     @Override
     public Rectangle2D getBounds() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getBounds'");
+        return new Rectangle2D(x, y, width, height);
     }
 
 }
