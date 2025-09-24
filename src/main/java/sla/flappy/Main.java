@@ -16,7 +16,7 @@ public class Main extends FX_CG_2D_API {
     List<Bird> bs;
     List<Pipe> p;
     Random rand = new Random();
-    int geracao = 0;
+    int geracao = 0, num_b, timer, timerA;
 
     public Main(Stage stage) {
         super("Flappy Bird Simples", stage, 60, 640, 480);
@@ -35,6 +35,8 @@ public class Main extends FX_CG_2D_API {
         p = new ArrayList<>();
         bs = new ArrayList<>();
 
+        EfeitosSonoros.carregarSom("taco", getClass().getResource("../sons/taco.mp3"));
+
         Platform.runLater(() -> cria(0, 0, 0, 0));
 
         iniciarTimer("pipe", 1.3, true, new AcaoTimer() {
@@ -49,6 +51,7 @@ public class Main extends FX_CG_2D_API {
 
     @Override
     public void atualizar() {
+        timer++;
         boolean todos = true;
         Bird ultimo = null;
         for (Bird b : bs) {
@@ -71,6 +74,8 @@ public class Main extends FX_CG_2D_API {
                     if ((colisao(b.getBounds(), alvo.getBottomBounds()))
                             || (colisao(b.getBounds(), alvo.getTopBounds()))) {
                         b.setDie(true);
+                        num_b--;
+                        EfeitosSonoros.tocarSom("taco", true, true);
                         System.out.println("colidiu");
                     }
                 }
@@ -81,13 +86,13 @@ public class Main extends FX_CG_2D_API {
             pipe.atualizar();
         }
 
-        // remove canos que saíram da tela
         p.removeIf(pipe -> pipe.getX() + pipe.getWidth() < 0);
 
         if (todos) {
-            // limpa os canos e os pássaros
             p.clear();
             bs.clear();
+            timerA = timer;
+            timer = 0;
             geracao++;
 
             if (ultimo != null) {
@@ -110,8 +115,6 @@ public class Main extends FX_CG_2D_API {
     public void desenhar() {
         limparTela(Color.WHITE);
 
-        // desenha os canos
-        texto("Geração: "+ geracao, 200, 200, 20);
         empilhar();
         for (Pipe pipe : p) {
             pipe.desenhar();
@@ -123,16 +126,15 @@ public class Main extends FX_CG_2D_API {
                 b.desenhar();
             }
         }
+        texto("Geração: " + geracao, 20, 20, 20);
+        texto("passaros: " + num_b, 20, 40, 20);
+        texto("tempo: " + timer, 20, 60, 20);
+        texto("tempo anterior: " + timerA, 20, 80, 20);
         desempilhar();
     }
 
     @Override
     public void teclaPressionada(KeyEvent e) {
-        for (Bird b : bs) {
-            if (b != null && !b.getDie()) {
-                b.teclaPressionada(e);
-            }
-        }
     }
 
     @Override
@@ -160,7 +162,7 @@ public class Main extends FX_CG_2D_API {
     }
 
     public void cria(double peso11, double peso22, double peso33, double peso44) {
-        for (int i = 0; i < 1000; i++) {
+        for (int i = 0; i < 700; i++) {
             double peso1, peso2, peso3, peso4;
 
             if (peso11 == 0) {
@@ -175,7 +177,9 @@ public class Main extends FX_CG_2D_API {
                 peso4 = mutar(peso44);
             }
 
-            Bird b = new Bird(this, this.larguraTela() / 2 + rand.nextDouble() * 20, this.alturaTela() / 2);
+            Bird b = new Bird(this, this.larguraTela() / 2 + rand.nextDouble() * 120, this.alturaTela() / 2);
+            num_b++;
+
             b.setPesos(peso1, peso2, peso3, peso4);
             bs.add(b);
         }
@@ -183,7 +187,7 @@ public class Main extends FX_CG_2D_API {
 
     private double mutar(double peso) {
         if (rand.nextDouble() < 0.01) {
-            peso += -100 + rand.nextDouble() * 200;
+            peso += -100 + rand.nextDouble() * 100;
         }
         if (peso > 1000)
             peso = 1000;

@@ -13,7 +13,7 @@ public class Bird {
     private double x, y;
     private double vspd = 0;
     private final double grav = 0.8;
-    private final double jumpHeight = -12;
+    private final double jumpHeight = -10;
     private double pipeX = 0, pipeY = 0; // inicia em 0, não em NaN
     private Color cor;
 
@@ -61,14 +61,14 @@ public class Bird {
         soma3 = saida3 + saida4;
 
         // condicional de pulo
-        if (soma3 > 0) { // threshold ajustável
+        if (soma3 > 100) { // threshold ajustável
             vspd = jumpHeight;
         }
     }
 
     public void desenhar() {
         api.preenchimento(cor);
-        api.retangulo(x, y, width, height, Estilo.PREENCHIDO);
+        api.circulo(x,y,width,height,Estilo.PREENCHIDO);
     }
 
     public void teclaPressionada(KeyEvent e) {

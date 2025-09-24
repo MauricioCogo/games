@@ -103,7 +103,6 @@ public class Aldeao extends Base {
     }
 
     private RecursoFonte proximoRecurso(TipoRecurso tipo, RecursoFonte atual) {
-
         List<? extends RecursoFonte> lista = switch (tipo) {
             case COMIDA -> reino.getRebanhos();
             case MADEIRA -> reino.getBosques();
@@ -111,11 +110,17 @@ public class Aldeao extends Base {
         };
 
         if (lista.isEmpty())
-            return null;
+            return null; // nenhum recurso disponível
 
+        // tenta achar o índice do recurso atual
         int idx = lista.indexOf(atual);
-        return lista.get((idx + 1) % lista.size());
+        if (idx == -1) {
+            // recurso atual não está mais na lista, pega o primeiro disponível
+            return lista.get(0);
+        }
 
+        // retorna o próximo recurso circularmente
+        return lista.get((idx + 1) % lista.size());
     }
 
 }

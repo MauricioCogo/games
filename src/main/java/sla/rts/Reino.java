@@ -14,6 +14,7 @@ import sla.api.FX_CG_2D_API.Estilo;
 import sla.rts.recursos.Bosque;
 import sla.rts.recursos.MinaFerro;
 import sla.rts.recursos.Rebanho;
+import sla.rts.recursos.RecursoFonte;
 import sla.rts.tropas.Aldeao;
 import sla.rts.tropas.Soldado;
 
@@ -70,9 +71,12 @@ public class Reino extends Base {
                 y + random.nextInt(raio * 2 + 100) - raio,
                 api, this));
 
-        Aldeao ac = new Aldeao(x + random.nextInt(raio * 2 + 20) - raio, y + random.nextInt(raio * 2 + 20) - raio, this, api, cor.brighter(), rebanhos.get(0));
-        Aldeao am = new Aldeao(x + random.nextInt(raio * 2 + 20) - raio, y + random.nextInt(raio * 2 + 20) - raio, this, api, cor.brighter(), bosques.get(0));
-        Aldeao af = new Aldeao(x + random.nextInt(raio * 2 + 20) - raio, y + random.nextInt(raio * 2 + 20) - raio, this, api, cor.brighter(), minas.get(0));
+        Aldeao ac = new Aldeao(x + random.nextInt(raio * 2 + 20) - raio, y + random.nextInt(raio * 2 + 20) - raio, this,
+                api, cor.brighter(), rebanhos.get(0));
+        Aldeao am = new Aldeao(x + random.nextInt(raio * 2 + 20) - raio, y + random.nextInt(raio * 2 + 20) - raio, this,
+                api, cor.brighter(), bosques.get(0));
+        Aldeao af = new Aldeao(x + random.nextInt(raio * 2 + 20) - raio, y + random.nextInt(raio * 2 + 20) - raio, this,
+                api, cor.brighter(), minas.get(0));
         aldeoes.add(ac);
         aldeoes.add(am);
         aldeoes.add(af);
@@ -104,8 +108,6 @@ public class Reino extends Base {
         rebanhos.forEach(Rebanho::atualizar);
         bosques.forEach(Bosque::atualizar);
 
-
-
         rebanhos.removeIf(Rebanho::estaVazio);
         minas.removeIf(MinaFerro::estaVazio);
         bosques.removeIf(Bosque::estaVazio);
@@ -136,6 +138,26 @@ public class Reino extends Base {
         for (int i = 0; i < quantidade; i++) {
             lista.add(factory.get());
         }
+    }
+
+    public void cria_aldeao() {
+        RecursoFonte destinoInicial = null;
+        if (!rebanhos.isEmpty())
+            destinoInicial = rebanhos.get(0); // COMIDA
+        else if (!bosques.isEmpty())
+            destinoInicial = bosques.get(0); // MADEIRA
+        else if (!minas.isEmpty())
+            destinoInicial = minas.get(0); // FERRO
+
+        if (destinoInicial == null)
+            return; // não tem recurso nenhum, não cria
+
+        Aldeao ac = new Aldeao(
+                x + random.nextInt(raio * 2 + 20) - raio,
+                y + random.nextInt(raio * 2 + 20) - raio,
+                this, api, cor.brighter(),
+                destinoInicial);
+        aldeoes.add(ac);
     }
 
 }

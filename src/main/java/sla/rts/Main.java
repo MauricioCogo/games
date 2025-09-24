@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.function.Supplier;
 
+import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
@@ -23,6 +24,7 @@ public class Main extends FX_CG_2D_API {
     private List<MinaFerro> minas;
     private List<Rebanho> rebanhos;
     private List<Bosque> bosques;
+    Reino r1;
 
     public Main(Stage stage) {
         super("RTS Maneiro", stage, 60, 1250, 720);
@@ -67,7 +69,7 @@ public class Main extends FX_CG_2D_API {
         }
 
         // Cria reinos
-        Reino r1 = new Reino(1000, 200, "Barbaros", Color.PURPLE, this);
+        r1 = new Reino(1000, 200, "Barbaros", Color.PURPLE, this);
         Reino r2 = new Reino(200, 300, "Elfos", Color.GREEN, this);
         reinos.add(r1);
         reinos.add(r2);
@@ -122,6 +124,10 @@ public class Main extends FX_CG_2D_API {
 
     @Override
     public void teclaPressionada(KeyEvent e) {
+        if (e.getCode() == KeyCode.SPACE) {
+            r1.cria_aldeao();
+            
+        }
 
     }
 
