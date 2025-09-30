@@ -2,22 +2,20 @@ package sla.tank;
 
 import javafx.geometry.Rectangle2D;
 import javafx.scene.image.Image;
-import javafx.scene.paint.Color;
 import sla.api.FX_CG_2D_API;
-import sla.api.FX_CG_2D_API.Estilo;
 
-public class Moita implements Base {
+public class Rock implements Base {
 
     private int x, y;
     private int width, height;
     private Image spr;
 
-    public Moita(int x, int y, int width, int height) {
+    public Rock(int x, int y, int width, int height) {
         this.x = x;
         this.y = y;
         this.width = width;
         this.height = height;
-        spr = new Image(getClass().getResource("/imagens/tank/moita.gif").toExternalForm());
+        spr = new Image(getClass().getResource("/imagens/tank/rock.gif").toExternalForm());
     }
 
     @Override

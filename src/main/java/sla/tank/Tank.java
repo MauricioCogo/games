@@ -4,16 +4,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javafx.geometry.Rectangle2D;
+import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.paint.Color;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import sla.api.FX_CG_2D_API;
-import sla.api.FX_CG_2D_API.AcaoTimer;
-import sla.api.FX_CG_2D_API.Estilo;
 
 @Data
 @EqualsAndHashCode(callSuper = false)
@@ -22,8 +20,17 @@ public class Tank implements Base {
     private int x, y;
     private int middleX, middleY;
     private double mouseX, mouseY;
+    private int canhaoLarg = 40;
+    private int canhaoAlt = 10;
+    private int raio = 20;
+
     private int width, height;
     private double spd = 4;
+
+    private boolean hidden = false;
+    private boolean die = false;
+
+    private Image base, cano, belt, belt90, spr;
 
     List<Bullet> bl = new ArrayList<>();
 
@@ -34,36 +41,39 @@ public class Tank implements Base {
         this.y = y;
         this.width = width;
         this.height = height;
+        base = new Image(getClass().getResource("/imagens/tank/b.gif").toExternalForm());
+        cano = new Image(getClass().getResource("/imagens/tank/cano.gif").toExternalForm());
+        belt = new Image(getClass().getResource("/imagens/tank/belt.gif").toExternalForm());
+        belt90 = new Image(getClass().getResource("/imagens/tank/belt90.gif").toExternalForm());
+        spr = belt;
     }
 
     @Override
     public void desenhar(FX_CG_2D_API api) {
         api.empilhar();
 
-        api.preenchimento(Color.GREEN);
-        api.retangulo(x, y, width, height, Estilo.PREENCHIDO);
-
         for (Bullet bullet : bl) {
             bullet.desenhar(api);
         }
 
-        int raio = 20;
-        api.preenchimento(Color.DARKGREEN);
-        api.circulo(middleX - raio, middleY - raio, raio * 2, raio * 2, Estilo.PREENCHIDO);
+        if (!hidden) {
 
-        double angulo = Math.atan2(mouseY - middleY, mouseX - middleX);
-        angulo = Math.toDegrees(angulo);
+            if (reload) {
+                api.texto("Recarregando...", x - (width/2), y + 70, 20);
+            }
 
-        api.transladar(middleX, middleY);
-        api.rotacionar(angulo);
-        api.transladar(-middleX, -middleY);
+            api.imagem(spr, x, y);
 
-        int canhaoLarg = 40;
-        int canhaoAlt = 10;
-        api.retangulo(middleX, middleY - canhaoAlt / 2, canhaoLarg, canhaoAlt, Estilo.PREENCHIDO);
+            double angulo = Math.atan2(mouseY - middleY, mouseX - middleX);
+            angulo = Math.toDegrees(angulo);
 
-        if (reload) {
-            api.texto("Recarregando...", x, y + 50, 20);
+            api.transladar(middleX, middleY);
+            api.rotacionar(angulo);
+            api.transladar(-middleX, -middleY);
+
+            api.imagem(base, middleX - raio, middleY - raio);
+            api.imagem(cano, middleX, middleY - canhaoAlt / 2);
+
         }
 
         api.desempilhar();
@@ -72,19 +82,37 @@ public class Tank implements Base {
     @Override
     public void atualizar(FX_CG_2D_API api) {
 
+        bl.removeIf(Bullet::getDie);
+
         double hspd = 0;
         double vspd = 0;
 
         if (up && !down) {
             vspd = -spd;
+            width = 40;
+            height = 60;
+            spr = belt;
+
         } else if (down && !up) {
             vspd = spd;
+            width = 40;
+            height = 60;
+            spr = belt;
+
         }
 
         if (left && !right) {
             hspd = -spd;
+            width = 60;
+            height = 40;
+            spr = belt90;
+
         } else if (right && !left) {
             hspd = spd;
+            width = 60;
+            height = 40;
+            spr = belt90;
+
         }
 
         x += hspd;
@@ -132,7 +160,6 @@ public class Tank implements Base {
         if (e.getButton() == MouseButton.PRIMARY && !reload) {
             reload = true;
 
-            // cria o tiro
             double startX = middleX;
             double startY = middleY;
             double dx = e.getX() - middleX;
@@ -143,8 +170,7 @@ public class Tank implements Base {
             Bullet bullet = new Bullet(startX, startY, dx, dy);
             bl.add(bullet);
 
-            // inicia o timer para recarregar
-            api.iniciarTimer("reload", 3, false, new FX_CG_2D_API.AcaoTimer() {
+            api.iniciarTimer("reload", 2, false, new FX_CG_2D_API.AcaoTimer() {
                 @Override
                 public void executar() {
                     reload = false;
@@ -152,5 +178,13 @@ public class Tank implements Base {
                 }
             });
         }
+    }
+
+    public boolean getDie() {
+        return die;
+    }
+
+    public boolean isReloading(){
+        return reload;
     }
 }

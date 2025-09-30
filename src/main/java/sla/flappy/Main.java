@@ -35,8 +35,6 @@ public class Main extends FX_CG_2D_API {
         p = new ArrayList<>();
         bs = new ArrayList<>();
 
-        EfeitosSonoros.carregarSom("taco", getClass().getResource("../sons/taco.mp3"));
-
         Platform.runLater(() -> cria(0, 0, 0, 0));
 
         iniciarTimer("pipe", 1.3, true, new AcaoTimer() {

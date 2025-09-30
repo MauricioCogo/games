@@ -1,5 +1,9 @@
 package sla.tank;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
@@ -9,7 +13,9 @@ import sla.api.FX_CG_2D_API;
 public class Main extends FX_CG_2D_API {
 
     private Tank tank;
-    private Moita moita;
+    private List<Moita> moitas;
+    private List<Rock> pedras;
+    Random r;
 
     public Main(Stage stage) {
         super("Tank Offline", stage, 60, 640, 480);
@@ -22,20 +28,80 @@ public class Main extends FX_CG_2D_API {
     @Override
     public void acaoAoIniciar() {
         tank = new Tank(alturaTela() / 2, larguraTela() / 2, 40, 40);
-        moita = new Moita(100, 100, 50, 50);
+        r = new Random();
+
+        moitas = new ArrayList<>();
+        pedras = new ArrayList<>();
+        int qntPedra = r.nextInt(6) + 1;
+        int qntMoita = r.nextInt(6) + 1;
+
+        for (int i = 0; i < qntMoita; i++) {
+            int x = r.nextInt(larguraTela());
+            int y = r.nextInt(alturaTela());
+            Moita m = new Moita(x, y, 50, 50);
+            moitas.add(m);
+        }
+        for (int i = 0; i < qntPedra; i++) {
+            int x = r.nextInt(larguraTela());
+            int y = r.nextInt(alturaTela());
+            Rock rock = new Rock(x, y, 50, 50);
+            pedras.add(rock);
+        }
     }
 
     @Override
     public void atualizar() {
-        tank.atualizar(this);
+        if (!tank.getDie()) {
+            tank.atualizar(this);
+        }
+
+        for (Moita moita : moitas) {
+            moita.atualizar(this);
+        }
+        for (Rock pedra : pedras) {
+            pedra.atualizar(this);
+        }
+
+        for (Bullet b : tank.getBl()) {
+            if (b.getColid() && colisao(b.getBounds(), tank.getBounds())) {
+                tank.setDie(true);
+            }
+
+            for (Rock pedra : pedras) {
+                if (b.getColid() && colisao(b.getBounds(), pedra.getBounds())) {
+                    b.setDie(true);
+
+                }
+            }
+
+        }
+
+        tank.getBl().removeIf(Bullet::getDie);
     }
 
     @Override
     public void desenhar() {
-        limparTela(Color.WHITE);
+        limparTela(Color.GREEN.brighter());
 
-        tank.desenhar(this);
-        moita.desenhar(this);
+        if (!tank.getDie()) {
+            tank.desenhar(this);
+        }
+
+        boolean estaEscondido = false;
+
+        for (Moita moita : moitas) {
+            moita.desenhar(this);
+
+            if (colisao(tank.getBounds(), moita.getBounds())) {
+                estaEscondido = true;
+            }
+        }
+
+        tank.setHidden(estaEscondido);
+
+        for (Rock pedra : pedras) {
+            pedra.desenhar(this);
+        }
     }
 
     @Override
@@ -52,8 +118,8 @@ public class Main extends FX_CG_2D_API {
     public void teclaLiberada(KeyEvent e) {
         tank.teclaLiberada(e);
     }
-    // #region
 
+    // #region
     @Override
     public void teclaDigitada(KeyEvent e) {
 
@@ -61,7 +127,7 @@ public class Main extends FX_CG_2D_API {
 
     @Override
     public void cliqueDoMouse(MouseEvent e) {
-        tank.shoot(e,this);
+        tank.shoot(e, this);
     }
 
     @Override
