@@ -2,6 +2,7 @@ package sla.car;
 
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import sla.api.FX_CG_2D_API;
 
@@ -35,6 +36,7 @@ public class Main extends FX_CG_2D_API{
 
     @Override
     public void teclaLiberada(KeyEvent e) {
+        c.teclaLiberada(e);
         
     }
 
@@ -65,11 +67,12 @@ public class Main extends FX_CG_2D_API{
 
     @Override
     public void atualizar() {
-        c.desenhar(this);
+        c.atualizar(this);
     }
 
     @Override
     public void desenhar() {
+        limparTela(Color.WHITE);
         c.desenhar(this);
     }
     
