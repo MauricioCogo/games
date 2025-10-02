@@ -4,7 +4,6 @@ sla\tank\Bullet$1.class
 sla\flappy\Main.class
 sla\App.class
 sla\flappy\Main$1.class
-sla\teste\teste.class
 sla\rts\recursos\Bosque.class
 sla\tank\AgentWeights.class
 sla\api\FX_CG_2D_API$8.class
@@ -14,12 +13,15 @@ sla\teste\ExemploInicial.class
 sla\teste\Saco.class
 sla\rts\recursos\Rebanho.class
 sla\tank\Main.class
+sla\car\Main.class
+sla\car\Carro.class
 sla\tank\Tank.class
 sla\api\FX_CG_2D_API$DadosTimer.class
 sla\rts\Reino.class
 sla\api\FX_CG_2D_API$4.class
 sla\tank\Base.class
 sla\rts\TipoRecurso.class
+sla\teste\Ataque.class
 sla\rts\tropas\Aldeao.class
 sla\rts\Main.class
 sla\teste\Player$2.class

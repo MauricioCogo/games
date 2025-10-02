@@ -17,7 +17,7 @@ public class Bird {
     private double pipeX = 0, pipeY = 0; // inicia em 0, não em NaN
     private Color cor;
 
-    private final int width = 30, height = 30;
+    private final int width = 25, height = 25;
 
     private double peso1, peso2, peso3, peso4;
     private double saida1, saida2, saida3, saida4, soma1, soma3;
