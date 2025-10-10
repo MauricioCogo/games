@@ -42,10 +42,11 @@ public class Player {
         sprite = idle;
         this.side = side;
         this.api = api;
-        health = new Healthbar(side, nome, 100, 75, api);
+        health = new Healthbar(side, nome, 100, 0, api);
     }
 
     public void atualizar() {
+
         // gravidade
         vspd += grav;
         x += hspd;

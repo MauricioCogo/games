@@ -534,12 +534,17 @@ public abstract class FX_CG_2D_API{
 		this.cena.setFullScreen(true);
     }
     
+	/** M�todo para fazer alguma a��o ao iniciar jogo, como carregar o estado anterior..*/
+	public abstract void acaoAoIniciar();
+
+	    /** M�todo chamado continuamente para atualizar valores e realizar c�lculos necess�rios para o jogo.*/
+    public abstract void atualizar();
+
+    /** M�todo chamado continuamente para desenhar na tela.*/
+    public abstract void desenhar();
+    
     /** M�todo para fazer alguma a��o ao fechar jogo, como salvar o estado atual..*/
     public abstract void acaoAoSair();
-    
-    /** M�todo para fazer alguma a��o ao iniciar jogo, como carregar o estado anterior..*/
-    public abstract void acaoAoIniciar();
-    
     /** M�todo para tratar eventos de tecla pressionada do teclado.*/
     public abstract void teclaPressionada(KeyEvent e);
     
@@ -560,12 +565,6 @@ public abstract class FX_CG_2D_API{
     
     /** M�todo para tratar eventos do mouse quando estiver pressionado.*/
     public abstract void mousePressionado(MouseEvent e);
-    
-    /** M�todo chamado continuamente para atualizar valores e realizar c�lculos necess�rios para o jogo.*/
-    public abstract void atualizar();
-
-    /** M�todo chamado continuamente para desenhar na tela.*/
-    public abstract void desenhar();
         
     
     /** M�todo para iniciar o jogo. */

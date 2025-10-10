@@ -1,9 +1,9 @@
 package sla.teste;
 
-import sla.api.FX_CG_2D_API;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import sla.api.FX_CG_2D_API;
 
 public class ExemploInicial extends FX_CG_2D_API {
 
@@ -21,7 +21,7 @@ public class ExemploInicial extends FX_CG_2D_API {
     @Override
     public void acaoAoIniciar() {
         player = new Player((larguraTela() / 2) - 100, alturaTela() / 2, "Mauricio",true, this);
-        player2 = new Player((larguraTela() / 2) + 100, alturaTela() / 2, "Djonathan", false, this);
+        player2 = new Player((larguraTela() / 2) + 100, alturaTela() / 2, "Benhur", false, this);
 
     }
 
@@ -32,7 +32,8 @@ public class ExemploInicial extends FX_CG_2D_API {
         if (player.ataqueAtual != null && colisao(player.ataqueAtual.getBounds(), player2.getBounds()) && player.ataqueAtual.getColide()) {
             player2.health.setLife(player2.health.getLife() - 5);
             player.ataqueAtual.setColide(false);
-            player.setStrong(player.getStrong()+10);
+            player.health.setStrong(player.health.getStrong()+10);
+            System.out.println(player.health.getStrong());
         }
         if (player2.ataqueAtual != null && colisao(player2.ataqueAtual.getBounds(), player.getBounds())
                 && player2.ataqueAtual.getColide()) {

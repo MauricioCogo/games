@@ -25,6 +25,19 @@ public class Healthbar {
         this.api = api;
         this.margin = api.larguraTela();
 
+        timer();
+
+    }
+
+    public void timer() {
+        api.iniciarTimer("strong", 0.5, true, () -> {
+            if (strong > 0 && strong < 100)
+                strong -= 3;
+        });
+    }
+
+    public void atualizar() {
+
     }
 
     public void desenhar() {
@@ -42,10 +55,11 @@ public class Healthbar {
                 api.retangulo(20, 30, i, 20, Estilo.PREENCHIDO);
             }
 
-            for (int i = strong; i < 0; i++) {
+            for (int i = 0; i < strong; i++) {
                 api.preenchimento(Color.YELLOW);
-                api.retangulo(margin - 230, 30, i, 20, Estilo.PREENCHIDO);
+                api.retangulo(20, 40, i, 20, Estilo.PREENCHIDO);
             }
+
         } else {
             api.preenchimento(Color.GRAY);
             api.retangulo(api.larguraTela() - 250, 0, 250, 50, Estilo.PREENCHIDO);

@@ -1,6 +1,7 @@
 package sla.car;
 
-import static java.lang.Math.*;
+import static java.lang.Math.cos;
+import static java.lang.Math.sin;
 
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
@@ -35,25 +36,39 @@ public class Carro {
         System.out.println("angulo das rodas: " + wheelAngle + " esquerda: " + left + " direita: " + right);
         api.preenchimento(Color.GREEN);
         api.retangulo(x, y, width, height, Estilo.PREENCHIDO);
-        
-        if (circleR) {
-            api.circulo(x + width, y - (right / 2), right, right, Estilo.LINHAS);
-        }
-        if (circleL) {
-            api.circulo(x - left, y - (left / 2), left, left, Estilo.LINHAS);
-        }
+
+        // if (circleR) {
+        //     api.circulo((int) cxDireita, (int) cyDireita, right, right, Estilo.LINHAS);
+        // }
+        // if (circleL) {
+        //     api.circulo((int) cxEsquerda, (int) cyEsquerda, left, left, Estilo.LINHAS);
+        // }
+
     }
 
     public void atualizar(FX_CG_2D_API api) {
         circleR = wheelAngle >= 100 && wheelAngle <= 3200;
         circleL = wheelAngle >= 3400 && wheelAngle <= 6500;
 
-        directionAngle = toRadians((wheelAngle - 3300) / 100.0);
+        if (wheelAngle == 3300) {
+            // em linha reta
+            x += (int) (spd * sin(angle));
+            y += (int) (spd * cos(angle));
+        } else {
+            // movimento circular
+            double raio = (wheelAngle < 3300) ? right : left;
 
-        angle += (spd / (double) width) * tan(directionAngle);
+            // centro do círculo
+            double cx = x - raio * cos(angle);
+            double cy = y + raio * sin(angle);
 
-        x += (int) (spd * sin(angle));
-        y += (int) (spd * cos(angle));
+            // varia o ângulo do carro conforme anda
+            angle += (spd / raio);
+
+            // atualiza posição do carro sobre o círculo
+            x = (int) (cx + raio * cos(angle));
+            y = (int) (cy - raio * sin(angle));
+        }
 
         System.out.println("angle: " + angle + " dir: " + directionAngle);
     }
