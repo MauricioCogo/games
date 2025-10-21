@@ -28,6 +28,7 @@ public class Main extends FX_CG_2D_API {
 
     @Override
     public void acaoAoIniciar() {
+        
         ob = new ArrayList<>();
         dino = new Dino(this);
         r = new Random();

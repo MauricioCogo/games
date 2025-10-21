@@ -2,9 +2,7 @@ package sla.tank;
 
 import javafx.geometry.Rectangle2D;
 import javafx.scene.image.Image;
-import javafx.scene.paint.Color;
 import sla.api.FX_CG_2D_API;
-import sla.api.FX_CG_2D_API.Estilo;
 
 public class Moita implements Base {
 
