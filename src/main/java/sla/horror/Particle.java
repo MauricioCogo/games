@@ -1,6 +1,8 @@
 package sla.horror;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import javafx.geometry.Rectangle2D;
 import javafx.scene.paint.Color;
@@ -12,74 +14,97 @@ import sla.api.FX_CG_2D_API.Estilo;
 public class Particle {
     private double x, y;
     private double dx, dy;
-
-    private int spd;
-
-    private boolean colide = false;
+    private double spd;
+    private boolean colide = false, stop = false;
     private int width = 10, height = 10;
-
+    private Color cor;
     private FX_CG_2D_API api;
+    private Random r;
+    private List<Monster> ms;
+    private char name;
 
-    public Particle(double x, double y, double dx, double dy, int spd, FX_CG_2D_API api) {
+    // controla o tipo de comportamento
+    private boolean tipoRebate;
+    private boolean temporariamenteParada;
+    private double tempoParada;
+
+    public Particle(double x, double y, double dx, double dy, int spd, Color cor, char name, int timer,
+            FX_CG_2D_API api) {
         this.x = x;
         this.y = y;
         this.dx = dx;
         this.dy = dy;
         this.spd = spd;
         this.api = api;
+        this.cor = cor;
+        this.name = name;
+
+        r = new Random();
+        ms = new ArrayList<>();
+
+        // decide aleatoriamente se é do tipo "rebate até sumir" ou "para e volta"
+        tipoRebate = r.nextBoolean();
+
+        // tempo aleatório de parada (para tipo que para)
+        tempoParada = 1 + r.nextDouble() * 4; // entre 1 e 5 segundos
+
+        // se for tipo que para, programa um timer para liberar depois
+        if (!tipoRebate) {
+            api.iniciarTimer("parti" + r.nextInt(9999), tempoParada, false, () -> {
+                temporariamenteParada = false;
+            });
+        }
     }
 
     public void atualizar(List<Wall> walls) {
-        if (colide)
+        if (temporariamenteParada || stop)
             return;
 
-        double nextX = x + dx * spd;
-        double nextY = y + dy * spd;
+        spd -= 0.01;
+        if (spd <= 0) {
+            colide = true;
+            return;
+        }
 
-        Rectangle2D nextBoundsX = new Rectangle2D(nextX, y, width, height);
-        Rectangle2D nextBoundsY = new Rectangle2D(x, nextY, width, height);
-
-        boolean collided = false;
+        x += dx * spd;
+        y += dy * spd;
 
         for (Wall w : walls) {
-            Rectangle2D wallBounds = w.getBounds();
-
-            // Colisão no X
-            if (api.colisao(nextBoundsX, wallBounds)) {
-                if (dx > 0)
-                    x = wallBounds.getMinX() - width; // encosta à esquerda
-                else if (dx < 0)
-                    x = wallBounds.getMaxX(); // encosta à direita
-                dx = 0;
-                collided = true;
-            }
-
-            // Colisão no Y
-            if (api.colisao(nextBoundsY, wallBounds)) {
-                if (dy > 0)
-                    y = wallBounds.getMinY() - height; // encosta em cima
-                else if (dy < 0)
-                    y = wallBounds.getMaxY(); // encosta embaixo
-                dy = 0;
-                collided = true;
+            if (api.colisao(getBounds(), w.getBounds())) {
+                if (tipoRebate) {
+                    double angle = r.nextDouble() * 2 * Math.PI;
+                    dx = Math.cos(angle);
+                    dy = Math.sin(angle);
+                    spd -= 0.2;
+                } else {
+                    // comportamento "para por um tempo"
+                    dx = 0;
+                    dy = 0;
+                }
             }
         }
 
-        if (!collided) {
-            x = nextX;
-            y = nextY;
-        } else {
-            colide = true;
+        for (Monster m : ms) {
+            if (name != 'p')
+                continue;
+
+            if (api.colisao(getBounds(), m.getBounds())) {
+                dx *= -1;
+                dy *= -1;
+                dx += (r.nextDouble() - 0.5) * 0.2;
+                dy += (r.nextDouble() - 0.5) * 0.2;
+                spd -= 0.5;
+                cor = Color.RED;
+            }
         }
     }
 
     public void desenhar() {
-        api.preenchimento(Color.GREEN);
+        api.preenchimento(cor);
         api.circulo(x, y, width, height, Estilo.PREENCHIDO);
     }
 
     public Rectangle2D getBounds() {
         return new Rectangle2D(x, y, width, height);
     }
-
 }

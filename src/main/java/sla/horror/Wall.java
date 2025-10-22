@@ -23,7 +23,7 @@ public class Wall {
     }
 
     public void desenhar(){
-        api.preenchimento(Color.WHITE);
+        api.preenchimento(Color.BLACK);
         api.retangulo(x,y,width,height,Estilo.PREENCHIDO);
     }
 
