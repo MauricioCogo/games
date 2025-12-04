@@ -404,7 +404,7 @@ public abstract class FX_CG_2D_API{
     
     /** M�todo para escrever um texto na tela, nas coordenadas [x,y], com a fonte de tamanho tam e tipo tipo.*/
     public void texto(String texto, double x, double y, int tam, FontWeight tipo){
-        Font fonte = Font.font("Times New Roman", tipo, tam);
+        Font fonte = Font.font("Frightmare", tipo, tam);
         this.gc.setFont(fonte);
         this.gc.fillText(texto, x, y);
         this.gc.strokeText(texto, x, y);

@@ -1,23 +1,33 @@
 package sla.horror;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javafx.geometry.Rectangle2D;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import lombok.Data;
 import sla.api.FX_CG_2D_API;
+import sla.api.FX_CG_2D_API.Estilo;
 
 @Data
 public class Player {
     private int x, y;
     private int width = 30, height = 30;
-    private int spd = 3;
+    private int spd = 6;
+    private int life = 5;
+
+    private Gun armaAtual;
+
+    private Gun pistola;
+    private Gun escopeta;
+    private Gun rifle;
+
+    private double mouseX, mouseY;
 
     private FX_CG_2D_API api;
-    private List<Particle> ps;
 
     private boolean up, down, left, right, walk, sneak, run;
 
@@ -27,37 +37,53 @@ public class Player {
         this.x = x;
         this.y = y;
         this.api = api;
-        ps = new ArrayList<>();
 
         api.iniciarTimer("walk", 0.5, true, () -> {
             walk = true;
         });
+
+        pistola = new Gun(1, 10.0, 1, "pistola.png");
+        escopeta = new Gun(6, 11.0, 1, "escopeta.png");
+        rifle = new Gun(1, 20.0, 3, "rifle.png");
+        
+        armaAtual = pistola;
     }
 
     public void desenhar() {
 
+        api.preenchimento(Color.color(1.0, 0.80, 0.74));
+
+        api.retangulo(x, y, width, height, Estilo.PREENCHIDO);
+
+        double cx = x + width / 2.0;
+        double cy = y + height / 2.0;
+
+        armaAtual.desenharArma(api, cx, cy, mouseX, mouseY);
+        armaAtual.desenhar(api);
+        double raio = 500;
+
+        double tam = 600;
+
+        api.preenchimento(Color.BLACK);
+
+        for (int ang = 0; ang < 360; ang += 18) {
+
+            double rad = Math.toRadians(ang);
+
+            double px = cx + Math.cos(rad) * raio;
+            double py = cy + Math.sin(rad) * raio;
+
+            api.circulo(px - tam / 2, py - tam / 2, tam, tam, Estilo.PREENCHIDO);
+        }
     }
 
     public void atualizar(List<Wall> walls) {
-        ps.removeIf(Particle::isColide);
 
         double hspd = 0;
         double vspd = 0;
 
-        if ((up || down || left || right) && walk) {
-            if (sneak) {
-                createParticle(6, 1, Color.BLACK.brighter(), 2);
-                spd = 1;
-                walk = false;
-            } else {
-                createParticle(10, 4, Color.GRAY.darker(), 7);
-                spd = 3;
-                walk = false;
-            }
-        }
-
         if (run) {
-            spd = 6;
+            spd = 10;
         }
 
         if (up && !down)
@@ -88,9 +114,8 @@ public class Player {
             y = (int) nextY;
         }
 
-        for (Particle p : ps) {
-            p.atualizar(walls);
-        }
+        armaAtual.atualizar(api);
+
     }
 
     public Rectangle2D getBounds() {
@@ -111,11 +136,13 @@ public class Player {
         if (e.getCode() == KeyCode.CONTROL)
             run = true;
 
-        if (e.getCode() == KeyCode.SPACE && reloded) {
-            createParticle(16, 7, Color.WHITE.darker(), 10);
-            reloded = false;
-            api.iniciarTimer("reload_player", 1.0, false, () -> reloded = true);
-        }
+        if (e.getCode() == KeyCode.DIGIT1)
+            armaAtual = pistola;
+        if (e.getCode() == KeyCode.DIGIT2)
+            armaAtual = escopeta;
+        if (e.getCode() == KeyCode.DIGIT3)
+            armaAtual = rifle;
+
     }
 
     public void teclaLiberada(KeyEvent e) {
@@ -133,14 +160,15 @@ public class Player {
             run = false;
     }
 
-    public void createParticle(int total, int spd, Color cor, int timer) {
-        for (int i = 0; i < total; i++) {
-            double angulo = i * (2 * Math.PI / total);
-            double dx = Math.cos(angulo);
-            double dy = Math.sin(angulo);
-            Particle p = new Particle((double) x, (double) y, dx, dy, spd, cor, 'p', timer, this.api);
-            ps.add(p);
-        }
+    public void atirar(MouseEvent e) {
+        double cx = x + width / 2.0;
+        double cy = y + height / 2.0;
+        armaAtual.atirar(e, cx, cy, mouseX, mouseY, api);
+    }
+
+    public void atualizarMouse(double mouseTelaX, double mouseTelaY, double camX, double camY) {
+        this.mouseX = mouseTelaX + camX - api.larguraTela() / 2;
+        this.mouseY = mouseTelaY + camY - api.alturaTela() / 2;
     }
 
 }
