@@ -27,6 +27,10 @@ public class Monster {
 
     public void atualizar(Player p) {
         moverPara(p.getX(), p.getY());
+
+        if(die){
+            
+        }
     }
 
     public void desenhar() {

@@ -21,6 +21,8 @@ public class Player {
     private int spd = 6;
     private int life = 5;
 
+    private double tam = 500;
+
     private Gun armaAtual;
 
     private Gun pistola;
@@ -51,9 +53,9 @@ public class Player {
         URL somEscopeta = getClass().getResource("/sounds/som-shotgun.mp3");
         URL somRifle = getClass().getResource("/sounds/som-rifle.mp3");
 
-        pistola = new Gun(1, 10.0, 1, "pistola.png", somPistola);
-        escopeta = new Gun(6, 11.0, 1, "escopeta.png", somEscopeta);
-        rifle = new Gun(1, 20.0, 3, "rifle.png", somRifle);
+        pistola = new Gun(10,1, 10.0, 1, "pistola.png", somPistola);
+        escopeta = new Gun(4, 6, 11.0, 1, "escopeta.png", somEscopeta);
+        rifle = new Gun(6, 1, 20.0, 3, "rifle.png", somRifle);
 
         armaAtual = pistola;
     }
@@ -68,12 +70,8 @@ public class Player {
         double cy = y + height / 2.0;
 
         armaAtual.desenharArma(api, cx, cy, mouseX, mouseY);
-        armaAtual.desenhar(api);
+        armaAtual.desenhar(api, cx,cy);
         double raio = 500;
-
-        double tam = 600;
-
-        api.preenchimento(Color.BLACK);
 
         for (int i = 0; i < life; i++) {
             api.imagem(coracao, cx + (i * 20) - 50, cy - 50);
@@ -85,12 +83,17 @@ public class Player {
 
             double px = cx + Math.cos(rad) * raio;
             double py = cy + Math.sin(rad) * raio;
-
+            api.preenchimento(Color.BLACK);
             api.circulo(px - tam / 2, py - tam / 2, tam, tam, Estilo.PREENCHIDO);
         }
     }
 
     public void atualizar(List<Wall> walls) {
+
+        if (tam<=1000) {
+            tam+=0.5;
+        }
+        System.out.println(tam);
 
         double hspd = 0;
         double vspd = 0;

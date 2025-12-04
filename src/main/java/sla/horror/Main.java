@@ -20,6 +20,7 @@ public class Main extends FX_CG_2D_API {
     List<Wall> walls;
     List<Monster> monsters;
     List<Bullet> bs;
+    List<Suprimento> suprimentos;
 
     private boolean noMenu = true; // se estamos no menu ou no jogo
     private Image menuFundo = new Image(getClass().getResource("/imagens/horror/capa.png").toExternalForm());
@@ -66,6 +67,7 @@ public class Main extends FX_CG_2D_API {
         walls = new ArrayList();
         monsters = new ArrayList();
         bs = new ArrayList();
+        suprimentos = new ArrayList<>();
 
         r = new Random();
         desenharLabirinto(l);
@@ -90,10 +92,12 @@ public class Main extends FX_CG_2D_API {
 
     @Override
     public void atualizar() {
-        bs = p.getArmaAtual().getBullets();
+        if (!noMenu) {
+            bs = p.getArmaAtual().getBullets();
         p.atualizar(walls);
         walls.forEach(Wall::atualizar);
         monsters.forEach(m -> m.atualizar(p));
+        suprimentos.removeIf(Suprimento::isColetado);
 
         monsters.removeIf(Monster::isDie);
         bs.removeIf(Bullet::getDie);
@@ -110,10 +114,26 @@ public class Main extends FX_CG_2D_API {
 
         for (Bullet b : bs) {
             for (Monster m : monsters) {
-                if (b.getBounds().intersects(m.getBounds())) {
+                if (colisao(m.getBounds(), b.getBounds())) {
+                    if (Math.random() < 0.30) {
+                        Suprimento sup = new Suprimento(m.getX(), m.getY());
+                        suprimentos.add(sup);
+                    }
                     m.setDie(true);
                     b.setRemain(b.getRemain() - 1);
                 }
+            }
+        }
+
+        for (Suprimento s : suprimentos) {
+            if (!s.isColetado() && colisao(s.getBounds(), p.getBounds())) {
+                if (p.getLife() <= 5) {
+                    p.setLife(p.getLife() + 1);
+                }
+                if (p.getTam() >= 600) {
+                    p.setTam(p.getTam() - 100);
+                }
+                s.coletar();
             }
         }
 
@@ -126,6 +146,7 @@ public class Main extends FX_CG_2D_API {
             });
         }
 
+        }
     }
 
     @Override
@@ -164,10 +185,15 @@ public class Main extends FX_CG_2D_API {
 
         monsters.forEach(Monster::desenhar);
         p.atualizarMouse(mouseTelaX, mouseTelaY, camX, camY);
+        suprimentos.forEach(s -> s.desenhar(this));
         p.desenhar();
+
         monsters.forEach(Monster::desenharOlhos);
         preenchimento(Color.WHITE);
-        texto("Round: " + (round-1), camX - 500, camY - 300, 50);
+        texto("Round: " + (round - 1), camX - 500, camY - 300, 50);
+        if(!suprimentos.isEmpty()){
+            texto("Existem suprimentos no mapa!", camX - 500, camY - 200, 50);
+        }
 
         desempilhar();
     }
@@ -264,7 +290,7 @@ public class Main extends FX_CG_2D_API {
                 spawnY = alturaMapa + spawnMargin;
                 break;
         }
-        return new Monster(spawnX, spawnY, 30, 30, 1, this);
+        return new Monster(spawnX, spawnY, 30, 30, 2, this);
     }
 
     private void iniciarRound() {
@@ -294,7 +320,7 @@ public class Main extends FX_CG_2D_API {
                         "=====================================\n" +
                         "   Desenvolvido por:\n" +
                         "     • Carolini Bassan\n" +
-                        "     • Djonathan Briecsh\n" +
+                        "     • Djonathan Briesch\n" +
                         "     • Mauricio Cogo\n" +
                         "     • Rafael Tischler\n" +
                         "\n" +
