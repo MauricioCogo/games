@@ -1,5 +1,6 @@
 package sla.horror;
 
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -18,6 +19,7 @@ public class Main extends FX_CG_2D_API {
     LabirintoPrim l;
     List<Wall> walls;
     List<Monster> monsters;
+    List<Bullet> bs;
 
     private boolean noMenu = true; // se estamos no menu ou no jogo
     private Image menuFundo = new Image(getClass().getResource("/imagens/horror/capa.png").toExternalForm());
@@ -29,6 +31,8 @@ public class Main extends FX_CG_2D_API {
 
     private int round = 1;
     private int zumbisPorRound = 3;
+    private boolean aguardandoRound = false;
+
     private int spawnMargin = 100;
 
     Image chao = new Image(getClass().getResource("/imagens/horror/tijolo.png").toExternalForm());
@@ -40,6 +44,13 @@ public class Main extends FX_CG_2D_API {
 
     public Main(Stage stage) {
         super("SLA", stage, 60, 1280, 720);
+
+        // Carrega música de fundo
+        URL somMusica = Main.class.getResource("/sounds/musica.mp3");
+        EfeitosSonoros.carregarSom("musica", somMusica);
+
+        // Toca música em loop (true = sobreposto não importa, exclusivo=false)
+        EfeitosSonoros.tocarSom("musica", false, true);
     }
 
     public static void main(String[] args) {
@@ -54,6 +65,7 @@ public class Main extends FX_CG_2D_API {
 
         walls = new ArrayList();
         monsters = new ArrayList();
+        bs = new ArrayList();
 
         r = new Random();
         desenharLabirinto(l);
@@ -72,22 +84,47 @@ public class Main extends FX_CG_2D_API {
             }
         } while (colidiu);
 
-        iniciarTimer("rounds", 10, true, () -> {
-            round++;
-            int quantidadeZumbis = round * zumbisPorRound;
-            for (int i = 0; i < quantidadeZumbis; i++) {
-                Monster m = spawnZumbiFora();
-                monsters.add(m);
-            }
-            System.out.println("Round " + round + " iniciado! Zumbis: " + quantidadeZumbis);
-        });
+        iniciarRound();
+
     }
 
     @Override
     public void atualizar() {
+        bs = p.getArmaAtual().getBullets();
         p.atualizar(walls);
         walls.forEach(Wall::atualizar);
         monsters.forEach(m -> m.atualizar(p));
+
+        monsters.removeIf(Monster::isDie);
+        bs.removeIf(Bullet::getDie);
+
+        if (p.getLife() <= 0) {
+            noMenu = true;
+        }
+
+        for (Monster m : monsters) {
+            if (colisao(m.getBounds(), p.getBounds())) {
+                p.tomarDano();
+            }
+        }
+
+        for (Bullet b : bs) {
+            for (Monster m : monsters) {
+                if (b.getBounds().intersects(m.getBounds())) {
+                    m.setDie(true);
+                    b.setRemain(b.getRemain() - 1);
+                }
+            }
+        }
+
+        if (monsters.isEmpty() && !aguardandoRound) {
+            aguardandoRound = true;
+
+            iniciarTimer("proximoRound", 2.0, false, () -> {
+                round++;
+                iniciarRound();
+            });
+        }
 
     }
 
@@ -106,7 +143,7 @@ public class Main extends FX_CG_2D_API {
                 }
                 texto(opcoesMenu[i], 200, 500 + i * 100, 100);
             }
-            return; // interrompe o desenho do jogo enquanto estiver no menu
+            return;
         }
 
         double camX = p.getX();
@@ -127,10 +164,10 @@ public class Main extends FX_CG_2D_API {
 
         monsters.forEach(Monster::desenhar);
         p.atualizarMouse(mouseTelaX, mouseTelaY, camX, camY);
-        texto("Round: " + round, camX, camY, 10);
         p.desenhar();
         monsters.forEach(Monster::desenharOlhos);
         preenchimento(Color.WHITE);
+        texto("Round: " + (round-1), camX - 500, camY - 300, 50);
 
         desempilhar();
     }
@@ -230,14 +267,40 @@ public class Main extends FX_CG_2D_API {
         return new Monster(spawnX, spawnY, 30, 30, 1, this);
     }
 
+    private void iniciarRound() {
+        aguardandoRound = false;
+
+        int quantidadeZumbis = round * zumbisPorRound;
+
+        for (int i = 0; i < quantidadeZumbis; i++) {
+            monsters.add(spawnZumbiFora());
+        }
+
+        System.out.println("Round " + round + " iniciado! Zumbis: " + quantidadeZumbis);
+    }
+
     private void startGame() {
         noMenu = false;
-        acaoAoIniciar(); // inicializa o jogo
+        URL somUrl = Main.class.getResource("/sounds/start.mp3");
+        EfeitosSonoros.carregarSom("start", somUrl);
+        EfeitosSonoros.tocarSom("start", false, true);
+        acaoAoIniciar();
     }
 
     private void mostrarCreditos() {
-        System.out.println("Créditos do jogo: Desenvolvido por você!");
-        // Aqui você pode desenhar na tela de forma mais elaborada se quiser
+        System.out.println(
+                "\n=====================================\n" +
+                        "         🎮 C R É D I T O S 🎮        \n" +
+                        "=====================================\n" +
+                        "   Desenvolvido por:\n" +
+                        "     • Carolini Bassan\n" +
+                        "     • Djonathan Briecsh\n" +
+                        "     • Mauricio Cogo\n" +
+                        "     • Rafael Tischler\n" +
+                        "\n" +
+                        "   Arte:\n" +
+                        "     • Benhur Dona\n" +
+                        "=====================================\n");
     }
 
     private void sairJogo() {

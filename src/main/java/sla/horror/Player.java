@@ -1,8 +1,10 @@
 package sla.horror;
 
+import java.net.URL;
 import java.util.List;
 
 import javafx.geometry.Rectangle2D;
+import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
@@ -32,6 +34,9 @@ public class Player {
     private boolean up, down, left, right, walk, sneak, run;
 
     private boolean reload, reloded = true, die = false;
+    private boolean invencivel = false;
+
+    private Image coracao = new Image(getClass().getResource("/imagens/horror/coracao.png").toExternalForm());
 
     public Player(int x, int y, FX_CG_2D_API api) {
         this.x = x;
@@ -42,10 +47,14 @@ public class Player {
             walk = true;
         });
 
-        pistola = new Gun(1, 10.0, 1, "pistola.png");
-        escopeta = new Gun(6, 11.0, 1, "escopeta.png");
-        rifle = new Gun(1, 20.0, 3, "rifle.png");
-        
+        URL somPistola = getClass().getResource("/sounds/som-pistola.mp3");
+        URL somEscopeta = getClass().getResource("/sounds/som-shotgun.mp3");
+        URL somRifle = getClass().getResource("/sounds/som-rifle.mp3");
+
+        pistola = new Gun(1, 10.0, 1, "pistola.png", somPistola);
+        escopeta = new Gun(6, 11.0, 1, "escopeta.png", somEscopeta);
+        rifle = new Gun(1, 20.0, 3, "rifle.png", somRifle);
+
         armaAtual = pistola;
     }
 
@@ -65,6 +74,10 @@ public class Player {
         double tam = 600;
 
         api.preenchimento(Color.BLACK);
+
+        for (int i = 0; i < life; i++) {
+            api.imagem(coracao, cx + (i * 20) - 50, cy - 50);
+        }
 
         for (int ang = 0; ang < 360; ang += 18) {
 
@@ -123,13 +136,13 @@ public class Player {
     }
 
     public void teclaPressionada(KeyEvent e) {
-        if (e.getCode() == KeyCode.UP)
+        if (e.getCode() == KeyCode.W)
             up = true;
-        if (e.getCode() == KeyCode.DOWN)
+        if (e.getCode() == KeyCode.S)
             down = true;
-        if (e.getCode() == KeyCode.LEFT)
+        if (e.getCode() == KeyCode.A)
             left = true;
-        if (e.getCode() == KeyCode.RIGHT)
+        if (e.getCode() == KeyCode.D)
             right = true;
         if (e.getCode() == KeyCode.SHIFT)
             sneak = true;
@@ -146,13 +159,13 @@ public class Player {
     }
 
     public void teclaLiberada(KeyEvent e) {
-        if (e.getCode() == KeyCode.UP)
+        if (e.getCode() == KeyCode.W)
             up = false;
-        if (e.getCode() == KeyCode.DOWN)
+        if (e.getCode() == KeyCode.S)
             down = false;
-        if (e.getCode() == KeyCode.LEFT)
+        if (e.getCode() == KeyCode.A)
             left = false;
-        if (e.getCode() == KeyCode.RIGHT)
+        if (e.getCode() == KeyCode.D)
             right = false;
         if (e.getCode() == KeyCode.SHIFT)
             sneak = false;
@@ -169,6 +182,20 @@ public class Player {
     public void atualizarMouse(double mouseTelaX, double mouseTelaY, double camX, double camY) {
         this.mouseX = mouseTelaX + camX - api.larguraTela() / 2;
         this.mouseY = mouseTelaY + camY - api.alturaTela() / 2;
+    }
+
+    public void tomarDano() {
+        if (invencivel)
+            return; // não toma dano
+
+        life--;
+
+        invencivel = true;
+
+        // invencibilidade de 1.5 segundos
+        api.iniciarTimer("invencivel", 1.5, false, () -> {
+            invencivel = false;
+        });
     }
 
 }

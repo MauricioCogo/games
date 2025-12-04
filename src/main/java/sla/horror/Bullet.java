@@ -31,15 +31,9 @@ public class Bullet {
         x += dx * speed;
         y += dy * speed;
 
-        if (!colid) {
-            api.iniciarTimer("bullet", 0.2, false, new AcaoTimer() {
-
-                @Override
-                public void executar() {
-                    colid = true;
-                }
-
-            });
+        if (remain<=0) {
+            die = true;
+            System.out.println("é fi");
         }
     }
 

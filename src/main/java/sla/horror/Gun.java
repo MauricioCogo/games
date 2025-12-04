@@ -1,28 +1,34 @@
 package sla.horror;
 
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.image.Image;
 import sla.api.FX_CG_2D_API;
+import sla.api.FX_CG_2D_API.EfeitosSonoros;
 import sla.api.FX_CG_2D_API.Estilo;
 
 public class Gun {
-    private int numProjectiles; // quantos tiros por disparo
+    private int numProjectiles;
     private double bulletSpeed;
-    private int bulletRemain; // quantos inimigos atravessa
+    private int bulletRemain;
     private Image sprite;
+    private URL som;
 
     
 
     private List<Bullet> balas = new ArrayList<>();
 
-    public Gun(int numProjectiles, double bulletSpeed, int bulletRemain, String nome) {
+    public Gun(int numProjectiles, double bulletSpeed, int bulletRemain, String nome, URL som) {
         this.numProjectiles = numProjectiles;
         this.bulletSpeed = bulletSpeed;
         this.bulletRemain = bulletRemain;
         this.sprite = new Image(getClass().getResource("/imagens/horror/"+nome).toExternalForm());
+        this.som = som;
+        
     }
 
     public void desenhar(FX_CG_2D_API api) {
@@ -52,7 +58,6 @@ public class Gun {
         for (int i = 0; i < numProjectiles; i++) {
             double offsetAngle = 0;
             if (numProjectiles > 1) {
-                // espalhar balas para a escopeta
                 offsetAngle = Math.toRadians(-10 + 20.0 * i / (numProjectiles - 1));
             }
             double dx = mouseX - origemX;
@@ -62,11 +67,17 @@ public class Gun {
             dx /= len;
             dy /= len;
 
-            // aplicar espalhamento
             double newDx = dx * Math.cos(offsetAngle) - dy * Math.sin(offsetAngle);
             double newDy = dx * Math.sin(offsetAngle) + dy * Math.cos(offsetAngle);
 
+            EfeitosSonoros.carregarSom("tiro", som);
+            EfeitosSonoros.tocarSom("tiro", false, false);
+
             balas.add(new Bullet(origemX, origemY, newDx, newDy, bulletRemain, bulletSpeed));
         }
+    }
+
+    public List<Bullet> getBullets(){
+        return this.balas;
     }
 }
