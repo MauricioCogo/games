@@ -2,9 +2,11 @@ package sla.horror.util;
 
 import javafx.geometry.Rectangle2D;
 import javafx.scene.paint.Color;
+import lombok.Data;
 import sla.api.FX_CG_2D_API;
 import sla.api.FX_CG_2D_API.Estilo;
 
+@Data
 public class Wall {
     private int x,y;
     private int width, height;
@@ -16,10 +18,6 @@ public class Wall {
         this.width = size;
         this.height = size;
         this.api = api;
-    }
-
-    public void atualizar(){
-
     }
 
     public void desenhar(){

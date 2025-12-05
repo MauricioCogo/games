@@ -32,7 +32,6 @@ public class Bullet {
 
         if (remain<=0) {
             die = true;
-            System.out.println("é fi");
         }
     }
 

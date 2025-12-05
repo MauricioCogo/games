@@ -7,7 +7,6 @@ import javafx.geometry.Rectangle2D;
 import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
-import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import lombok.Data;
@@ -56,8 +55,8 @@ public class Player {
         URL somRifle = getClass().getResource("/sounds/som-rifle.mp3");
 
         pistola = new Gun(10,1, 10.0, 1, "pistola", somPistola);
-        escopeta = new Gun(4, 6, 11.0, 1, "escopeta", somEscopeta);
-        rifle = new Gun(6, 1, 20.0, 6, "rifle", somRifle);
+        escopeta = new Gun(4, 6, 11.0, 5, "escopeta", somEscopeta);
+        rifle = new Gun(6, 1, 20.0, 1000, "rifle", somRifle);
 
         armaAtual = pistola;
     }
@@ -92,7 +91,7 @@ public class Player {
     public void atualizar(List<Wall> walls) {
 
         if (tam<=1000) {
-            tam+=0.5;
+            tam+=0.1;
         }
 
         double hspd = 0;
@@ -100,6 +99,8 @@ public class Player {
 
         if (run) {
             spd = 10;
+        }else{
+            spd = 6;
         }
 
         if (up && !down)
@@ -189,14 +190,14 @@ public class Player {
 
     public void tomarDano() {
         if (invencivel)
-            return; // não toma dano
+            return;
 
         life--;
 
         invencivel = true;
 
         // invencibilidade de 1.5 segundos
-        api.iniciarTimer("invencivel", 1.5, false, () -> {
+        api.iniciarTimer("invencivel", 0.5, false, () -> {
             invencivel = false;
         });
     }

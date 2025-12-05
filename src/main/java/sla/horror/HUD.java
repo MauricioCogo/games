@@ -39,26 +39,22 @@ public class HUD {
     public void desenhar() {
         api.texto("Round " + round, x, y, 40);
         api.texto("Quantidade de zumbis: " + monsters, x, y + gap, 40);
-        api.texto(ammo+"/" + totalAmmo, x + 600,y, 40);
+        api.texto(ammo + "/" + totalAmmo, x + 600, y, 40);
 
         switch (armaAtual) {
-            case "pistola":
+            case "pistola" -> {
                 api.preenchimento(Color.YELLOW);
                 api.retangulo(x + 490, y + 540, 80, 80, Estilo.PREENCHIDO);
-
-                break;
-            case "escopeta":
+            }
+            case "escopeta" -> {
                 api.preenchimento(Color.YELLOW);
                 api.retangulo(x + 590, y + 540, 80, 80, Estilo.PREENCHIDO);
-
-                break;
-            case "rifle":
+            }
+            case "rifle" -> {
                 api.preenchimento(Color.YELLOW);
                 api.retangulo(x + 690, y + 540, 80, 80, Estilo.PREENCHIDO);
-
-                break;
-            default:
-                throw new AssertionError();
+            }
+            default -> throw new AssertionError();
         }
 
         api.preenchimento(Color.GRAY);
@@ -70,9 +66,30 @@ public class HUD {
         api.imagem(rifle, x + 700, y + 575);
 
         if (supp == 1) {
-            api.texto("Existe " + supp + " suprimento disponivel", x, y + (gap*2), 30);
-        }else if(supp > 1){
-            api.texto("Existem " + supp + " suprimentos disponiveis", x, y + (gap*2), 30);
+            api.texto("Existe " + supp + " suprimento disponivel", x, y + (gap * 2), 30);
+        } else if (supp > 1) {
+            api.texto("Existem " + supp + " suprimentos disponiveis", x, y + (gap * 2), 30);
+        }
+    }
+
+    public void miniMapa(char[][] grid) {
+
+        double cellSize = 10;
+
+        for (int i = 0; i < grid.length; i++) {
+            for (int j = 0; j < grid[i].length; j++) {
+
+                char c = grid[i][j];
+
+                if (c == '#') {
+                    api.preenchimento(Color.GRAY);
+
+                    double px = x + j * cellSize + 50;
+                    double py = y + i * cellSize + 500;
+
+                    api.retangulo(px, py, cellSize, cellSize, Estilo.PREENCHIDO);
+                }
+            }
         }
     }
 }

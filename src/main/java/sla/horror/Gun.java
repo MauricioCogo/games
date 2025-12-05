@@ -15,26 +15,26 @@ import sla.horror.util.Bullet;
 @Data
 public class Gun {
 
-    private int numProjectiles;
-    private int ammoMagazine;
-    private int ammoNumberTotal;
-    private int bulletLife;
-    private double bulletSpeed;
+    private int numeroProjeteis;
+    private int municaoNoPente;
+    private int municaoTotal;
+    private int municaoVida;
+    private double municaoVelocidade;
     private Image sprite;
     private URL som;
 
     private String nome;
 
-    private boolean noBullets = false;
+    private boolean semMunicao = false;
 
     private List<Bullet> balas = new ArrayList<>();
 
-    public Gun(int bulletNumberMax, int numProjectiles, double bulletSpeed, int bulletLife, String nome, URL som) {
-        this.numProjectiles = numProjectiles;
-        this.bulletSpeed = bulletSpeed;
-        this.ammoMagazine = bulletNumberMax;
-        this.ammoNumberTotal = bulletNumberMax;
-        this.bulletLife = bulletLife;
+    public Gun(int bulletNumberMax, int numeroProjeteis, double municaoVelocidade, int municaoVida, String nome, URL som) {
+        this.numeroProjeteis = numeroProjeteis;
+        this.municaoVelocidade = municaoVelocidade;
+        this.municaoNoPente = bulletNumberMax;
+        this.municaoTotal = bulletNumberMax;
+        this.municaoVida = municaoVida;
         this.sprite = new Image(getClass().getResource("/imagens/horror/" + nome + ".png").toExternalForm());
         this.nome = nome;
         this.som = som;
@@ -47,8 +47,6 @@ public class Gun {
     }
 
     public void desenharArma(FX_CG_2D_API api, double cx, double cy, double mouseX, double mouseY) {
-
-        System.out.println(ammoMagazine + " municao");
 
         api.empilhar();
         double ang = Math.atan2(mouseY - cy, mouseX - cx);
@@ -63,24 +61,24 @@ public class Gun {
     }
 
     public void atualizar(FX_CG_2D_API api) {
-        noBullets = ammoMagazine <= 0;
+        semMunicao = municaoNoPente <= 0;
 
         for (Bullet b : balas)
             b.atualizar(api);
     }
 
     public void atirar(MouseEvent e, double origemX, double origemY, double mouseX, double mouseY, FX_CG_2D_API api) {
-        if (ammoMagazine > 0) {
+        if (municaoNoPente > 0) {
             if (e.getButton() != MouseButton.PRIMARY)
                 return;
 
-            ammoMagazine--;
+            municaoNoPente--;
             
 
-            for (int i = 0; i < numProjectiles; i++) {
+            for (int i = 0; i < numeroProjeteis; i++) {
                 double offsetAngle = 0;
-                if (numProjectiles > 1) {
-                    offsetAngle = Math.toRadians(-10 + 20.0 * i / (numProjectiles - 1));
+                if (numeroProjeteis > 1) {
+                    offsetAngle = Math.toRadians(-10 + 20.0 * i / (numeroProjeteis - 1));
                 }
                 double dx = mouseX - origemX;
                 double dy = mouseY - origemY;
@@ -96,7 +94,7 @@ public class Gun {
                 EfeitosSonoros.carregarSom("tiro", som);
                 EfeitosSonoros.tocarSom("tiro", false, false);
 
-                balas.add(new Bullet(origemX, origemY, newDx, newDy, bulletLife, bulletSpeed));
+                balas.add(new Bullet(origemX, origemY, newDx, newDy, municaoVida, municaoVelocidade));
             }
         }
     }
