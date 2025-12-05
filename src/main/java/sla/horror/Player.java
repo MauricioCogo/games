@@ -13,6 +13,7 @@ import javafx.scene.paint.Color;
 import lombok.Data;
 import sla.api.FX_CG_2D_API;
 import sla.api.FX_CG_2D_API.Estilo;
+import sla.horror.util.Wall;
 
 @Data
 public class Player {
@@ -39,6 +40,7 @@ public class Player {
     private boolean invencivel = false;
 
     private Image coracao = new Image(getClass().getResource("/imagens/horror/coracao.png").toExternalForm());
+    private Image vancock = new Image(getClass().getResource("/imagens/horror/vancock.png").toExternalForm());
 
     public Player(int x, int y, FX_CG_2D_API api) {
         this.x = x;
@@ -53,18 +55,17 @@ public class Player {
         URL somEscopeta = getClass().getResource("/sounds/som-shotgun.mp3");
         URL somRifle = getClass().getResource("/sounds/som-rifle.mp3");
 
-        pistola = new Gun(10,1, 10.0, 1, "pistola.png", somPistola);
-        escopeta = new Gun(4, 6, 11.0, 1, "escopeta.png", somEscopeta);
-        rifle = new Gun(6, 1, 20.0, 3, "rifle.png", somRifle);
+        pistola = new Gun(10,1, 10.0, 1, "pistola", somPistola);
+        escopeta = new Gun(4, 6, 11.0, 1, "escopeta", somEscopeta);
+        rifle = new Gun(6, 1, 20.0, 6, "rifle", somRifle);
 
         armaAtual = pistola;
     }
 
     public void desenhar() {
 
-        api.preenchimento(Color.color(1.0, 0.80, 0.74));
 
-        api.retangulo(x, y, width, height, Estilo.PREENCHIDO);
+        api.imagem(vancock, x, y);
 
         double cx = x + width / 2.0;
         double cy = y + height / 2.0;
@@ -93,7 +94,6 @@ public class Player {
         if (tam<=1000) {
             tam+=0.5;
         }
-        System.out.println(tam);
 
         double hspd = 0;
         double vspd = 0;

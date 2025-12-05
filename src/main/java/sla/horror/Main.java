@@ -12,6 +12,9 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import sla.api.FX_CG_2D_API;
+import sla.horror.util.Bullet;
+import sla.horror.util.LabirintoPrim;
+import sla.horror.util.Wall;
 
 public class Main extends FX_CG_2D_API {
 
@@ -21,6 +24,7 @@ public class Main extends FX_CG_2D_API {
     List<Monster> monsters;
     List<Bullet> bs;
     List<Suprimento> suprimentos;
+    HUD hud;
 
     private boolean noMenu = true; // se estamos no menu ou no jogo
     private Image menuFundo = new Image(getClass().getResource("/imagens/horror/capa.png").toExternalForm());
@@ -37,6 +41,10 @@ public class Main extends FX_CG_2D_API {
     private int spawnMargin = 100;
 
     Image chao = new Image(getClass().getResource("/imagens/horror/tijolo.png").toExternalForm());
+    Image zvermelho = new Image(getClass().getResource("/imagens/horror/olhosvermelhos.png").toExternalForm());
+    Image zazul = new Image(getClass().getResource("/imagens/horror/olhosazuis.png").toExternalForm());
+    Image zstealth = new Image(getClass().getResource("/imagens/horror/olhosstealth.png").toExternalForm());
+    Image zamarelo = new Image(getClass().getResource("/imagens/horror/olhosamarelos.png").toExternalForm());
     Font frightmare = Font.loadFont(getClass().getResource("/font/Frightmare.ttf").toExternalForm(), 24);
 
     Random r;
@@ -46,11 +54,9 @@ public class Main extends FX_CG_2D_API {
     public Main(Stage stage) {
         super("SLA", stage, 60, 1280, 720);
 
-        // Carrega música de fundo
         URL somMusica = Main.class.getResource("/sounds/musica.mp3");
         EfeitosSonoros.carregarSom("musica", somMusica);
 
-        // Toca música em loop (true = sobreposto não importa, exclusivo=false)
         EfeitosSonoros.tocarSom("musica", false, true);
     }
 
@@ -86,65 +92,80 @@ public class Main extends FX_CG_2D_API {
             }
         } while (colidiu);
 
+        hud = new HUD(0, 0, 100, this);
+
         iniciarRound();
 
     }
 
     @Override
     public void atualizar() {
+        System.out.println("Mouse x: " + mouseTelaX + " | Mouse y: " + mouseTelaY);
+
         if (!noMenu) {
             bs = p.getArmaAtual().getBullets();
-        p.atualizar(walls);
-        walls.forEach(Wall::atualizar);
-        monsters.forEach(m -> m.atualizar(p));
-        suprimentos.removeIf(Suprimento::isColetado);
+            p.atualizar(walls);
+            walls.forEach(Wall::atualizar);
+            monsters.forEach(m -> m.atualizar(p));
+            suprimentos.removeIf(Suprimento::isColetado);
 
-        monsters.removeIf(Monster::isDie);
-        bs.removeIf(Bullet::getDie);
+            monsters.removeIf(Monster::isDie);
+            bs.removeIf(Bullet::getDie);
 
-        if (p.getLife() <= 0) {
-            noMenu = true;
-        }
-
-        for (Monster m : monsters) {
-            if (colisao(m.getBounds(), p.getBounds())) {
-                p.tomarDano();
+            if (p.getLife() <= 0) {
+                noMenu = true;
             }
-        }
 
-        for (Bullet b : bs) {
             for (Monster m : monsters) {
-                if (colisao(m.getBounds(), b.getBounds())) {
-                    if (Math.random() < 0.30) {
-                        Suprimento sup = new Suprimento(m.getX(), m.getY());
-                        suprimentos.add(sup);
+                if (colisao(m.getBounds(), p.getBounds())) {
+                    p.tomarDano();
+                }
+            }
+
+            for (Bullet b : bs) {
+                for (Monster m : monsters) {
+                    if (colisao(m.getBounds(), b.getBounds())) {
+                        if (Math.random() < 0.30) {
+                            Suprimento sup = new Suprimento(m.getX(), m.getY());
+                            suprimentos.add(sup);
+                        }
+                        m.setLife(m.getLife() - 1);
+                        b.setRemain(b.getRemain() - 1);
                     }
-                    m.setDie(true);
-                    b.setRemain(b.getRemain() - 1);
                 }
             }
-        }
 
-        for (Suprimento s : suprimentos) {
-            if (!s.isColetado() && colisao(s.getBounds(), p.getBounds())) {
-                if (p.getLife() <= 5) {
-                    p.setLife(p.getLife() + 1);
+            for (Bullet bullet : bs) {
+                for (Wall w : walls) {
+                    if (colisao(bullet.getBounds(), w.getBounds())) {
+                        bullet.setDie(true);
+                    }
                 }
-                if (p.getTam() >= 600) {
-                    p.setTam(p.getTam() - 100);
-                }
-                s.coletar();
             }
-        }
 
-        if (monsters.isEmpty() && !aguardandoRound) {
-            aguardandoRound = true;
+            for (Suprimento s : suprimentos) {
+                if (!s.isColetado() && colisao(s.getBounds(), p.getBounds())) {
+                    if (p.getLife() <= 5) {
+                        p.setLife(p.getLife() + 1);
+                    }
+                    if (p.getTam() >= 600) {
+                        p.setTam(p.getTam() - 100);
+                    }
+                    if (p.getArmaAtual().getAmmoMagazine() <= p.getArmaAtual().getAmmoNumberTotal()) {
+                        p.getArmaAtual().setAmmoMagazine(p.getArmaAtual().getAmmoNumberTotal());
+                    }
+                    s.coletar();
+                }
+            }
 
-            iniciarTimer("proximoRound", 2.0, false, () -> {
-                round++;
-                iniciarRound();
-            });
-        }
+            if (monsters.isEmpty() && !aguardandoRound) {
+                aguardandoRound = true;
+
+                iniciarTimer("proximoRound", 2.0, false, () -> {
+                    round++;
+                    iniciarRound();
+                });
+            }
 
         }
     }
@@ -181,7 +202,7 @@ public class Main extends FX_CG_2D_API {
             }
         }
 
-        walls.forEach(Wall::desenhar); // paredes por cima
+        walls.forEach(Wall::desenhar);
 
         monsters.forEach(Monster::desenhar);
         p.atualizarMouse(mouseTelaX, mouseTelaY, camX, camY);
@@ -190,11 +211,16 @@ public class Main extends FX_CG_2D_API {
 
         monsters.forEach(Monster::desenharOlhos);
         preenchimento(Color.WHITE);
-        texto("Round: " + (round - 1), camX - 500, camY - 300, 50);
-        if(!suprimentos.isEmpty()){
-            texto("Existem suprimentos no mapa!", camX - 500, camY - 200, 50);
-        }
 
+        hud.setRound(round);
+        hud.setSupp(suprimentos.size());
+        hud.setAmmo(p.getArmaAtual().getAmmoMagazine());
+        hud.setTotalAmmo(p.getArmaAtual().getAmmoNumberTotal());
+        hud.setMonsters(monsters.size());
+        hud.setArmaAtual(p.getArmaAtual().getNome());
+        hud.setX(camX - 600);
+        hud.setY(camY - 300);
+        hud.desenhar();
         desempilhar();
     }
 
@@ -273,24 +299,61 @@ public class Main extends FX_CG_2D_API {
         int alturaMapa = l.getLabirinto().length * (int) TAMANHO_CELULA;
 
         switch (r.nextInt(4)) {
-            case 0: // esquerda
+            case 0 -> {
                 spawnX = -spawnMargin;
                 spawnY = r.nextInt(alturaMapa);
-                break;
-            case 1: // direita
+            }
+            case 1 -> {
                 spawnX = larguraMapa + spawnMargin;
                 spawnY = r.nextInt(alturaMapa);
-                break;
-            case 2: // topo
+            }
+            case 2 -> {
                 spawnX = r.nextInt(larguraMapa);
                 spawnY = -spawnMargin;
-                break;
-            case 3: // fundo
+            }
+            case 3 -> {
                 spawnX = r.nextInt(larguraMapa);
                 spawnY = alturaMapa + spawnMargin;
+            }
+        }
+
+        TipoZumbi tipo = escolherTipoZumbi();
+
+        int vida = 1;
+        double velocidade = 1.5;
+        int size = 30;
+        Image cor = zvermelho;
+
+        switch (tipo) {
+            case FRACO:
+                vida = 2;
+                velocidade = 1.5;
+                cor = zvermelho;
+                size = 30;
+                break;
+
+            case RAPIDO:
+                vida = 1;
+                velocidade = 3.5;
+                cor = zamarelo;
+                size = 20;
+                break;
+
+            case TANQUE:
+                vida = 5 + round;
+                velocidade = 1.2;
+                size = 60;
+                cor = zazul;
+                break;
+
+            case STEALTH:
+                vida = 2;
+                velocidade = 1.5;
+                cor = zstealth;
                 break;
         }
-        return new Monster(spawnX, spawnY, 30, 30, 2, this);
+
+        return new Monster(spawnX, spawnY, size, size, velocidade, this, cor, vida);
     }
 
     private void iniciarRound() {
@@ -301,8 +364,6 @@ public class Main extends FX_CG_2D_API {
         for (int i = 0; i < quantidadeZumbis; i++) {
             monsters.add(spawnZumbiFora());
         }
-
-        System.out.println("Round " + round + " iniciado! Zumbis: " + quantidadeZumbis);
     }
 
     private void startGame() {
@@ -333,4 +394,25 @@ public class Main extends FX_CG_2D_API {
         System.exit(0);
     }
 
+    public enum TipoZumbi {
+        FRACO, RAPIDO, TANQUE, STEALTH;
+    }
+
+    private TipoZumbi escolherTipoZumbi() {
+        int chance = r.nextInt(100);
+
+        if (round >= 8 && chance < 20) {
+            return TipoZumbi.TANQUE;
+        }
+
+        if (round >= 4 && chance < 40) {
+            return TipoZumbi.RAPIDO;
+        }
+
+        if (round >= 5 && chance <30) {
+            return TipoZumbi.STEALTH;
+        }
+
+        return TipoZumbi.FRACO;
+    }
 }

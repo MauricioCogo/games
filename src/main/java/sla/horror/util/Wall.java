@@ -1,4 +1,4 @@
-package sla.horror;
+package sla.horror.util;
 
 import javafx.geometry.Rectangle2D;
 import javafx.scene.paint.Color;

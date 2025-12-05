@@ -1,10 +1,9 @@
-package sla.horror;
+package sla.horror.util;
 
 import javafx.geometry.Rectangle2D;
 import javafx.scene.paint.Color;
 import lombok.Data;
 import sla.api.FX_CG_2D_API;
-import sla.api.FX_CG_2D_API.AcaoTimer;
 import sla.api.FX_CG_2D_API.Estilo;
 
 @Data

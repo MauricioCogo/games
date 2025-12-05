@@ -1,6 +1,7 @@
 package sla.horror;
 
 import javafx.geometry.Rectangle2D;
+import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 import lombok.Data;
 import sla.api.FX_CG_2D_API;
@@ -10,22 +11,31 @@ import sla.api.FX_CG_2D_API.Estilo;
 public class Monster {
     private int x, y;
     private int width = 30, height = 30;
-    private int spd;
+    private double spd;
+    private int life;
+
+    private Image spr;
 
     private FX_CG_2D_API api;
 
     private boolean die = false;
 
-    public Monster(int x, int y, int width, int height, int spd, FX_CG_2D_API api) {
+    public Monster(int x, int y, int width, int height, double spd, FX_CG_2D_API api, Image spr, int life) {
         this.x = x;
         this.y = y;
         this.width = width;
         this.height = height;
         this.spd = spd;
         this.api = api;
+        this.spr = spr;
+        this.life = life;
     }
 
     public void atualizar(Player p) {
+        if(life <= 0){
+            die = true;
+        }
+
         moverPara(p.getX(), p.getY());
 
         if(die){
@@ -50,17 +60,8 @@ public class Monster {
     }
 
     public void desenharOlhos() {
-        double cx = x + width / 2.0;
-        double cy = y + height / 2.0;
+        api.imagem(spr, x, y);
 
-        double separacao = width * 0.25;
-        double olhoY = cy - height * 0.15;
-
-        api.preenchimento(Color.RED);
-
-        api.circulo(cx + separacao - 2.5, olhoY, 5, 5, Estilo.PREENCHIDO);
-
-        api.circulo(cx - separacao - 2.5, olhoY, 5, 5, Estilo.PREENCHIDO);
     }
 
     public Rectangle2D getBounds() {

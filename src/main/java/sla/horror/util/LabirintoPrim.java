@@ -1,4 +1,4 @@
-package sla.horror;
+package sla.horror.util;
 
 import java.util.Arrays;
 
